@@ -11,7 +11,7 @@ exports.createPost = (req, res) => {
     ...req.body,
     date: new Date().toISOString()
   };
-  posts.push(newPost);
+  posts.unshift(newPost); // Add to beginning of array
   res.status(201).json(newPost);
 };
 
