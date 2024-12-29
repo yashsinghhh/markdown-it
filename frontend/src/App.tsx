@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios'; // Install axios first: npm install axios
+import axios from 'axios'; 
 import { Header } from './components/Header';
 import { MarkdownEditor } from './components/MarkdownEditor';
 import { BlogList } from './components/BlogList';

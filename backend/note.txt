@@ -10,3 +10,19 @@ create table posts (
   read_time integer,
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
+
+
+HOW IS BLOG POST IS GETTING THE DETAILS TO SHOW 
+
+The App component fetches blog posts from the API endpoint http://localhost:5174/api/posts using the fetchPosts function.
+The response from the API is assumed to be an array of blog posts, where each post is an object containing properties like id, title, description, image, date, and readTime.
+The fetched data is stored in the posts state of the App component using the setPosts function.
+Passing Data to BlogList:
+The App component renders the BlogList component and passes the posts state as a prop to it:
+<BlogList posts={posts} />
+Rendering Posts in BlogList:
+The BlogList component receives the posts prop, which is an array of blog post objects.
+It uses the map function to iterate over the posts array and render a list of blog post cards.
+For each post, properties like id, title, description, image, date, and readTime are used to populate the UI elements.
+
+
