@@ -8,7 +8,7 @@ import type { BlogPost, EditorState } from './types/blog';
 
 // Create an axios instance with the base URL
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5174/api'
+  baseURL: import.meta.env.VITE_API_URL || 'http://nginx/api'  // Changed from localhost to nginx
 });
 
 const RANDOM_IMAGES = [
@@ -32,13 +32,17 @@ function App() {
 
   const fetchPosts = async () => {
     try {
-      // Updated to use the api instance
       console.log('Fetching posts...');
       const response = await api.get('/posts');
       console.log('Received posts:', response.data);
       setPosts(response.data);
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      // Improved error handling
+      console.error('Error fetching posts:', error.response?.data || error.message);
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
+      }
     }
   };
 
@@ -78,24 +82,25 @@ function App() {
   };
 
   const handleSave = async () => {
-    const { title, description } = parseMarkdownContent(editorState.content);
-    
-    const newPost = {
-      title,
-      description,
-      content: editorState.content,
-      image: getRandomImage(),
-      date: new Date().toLocaleDateString('en-US', { 
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      }),
-      readTime: calculateReadTime(editorState.content)
-    };
-  
     try {
-      // Save the new post
-      await api.post('/posts', newPost);
+      const { title, description } = parseMarkdownContent(editorState.content);
+      
+      const newPost = {
+        title,
+        description,
+        content: editorState.content,
+        image: getRandomImage(),
+        date: new Date().toLocaleDateString('en-US', { 
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        }),
+        readTime: calculateReadTime(editorState.content)
+      };
+
+      console.log('Saving post:', newPost);
+      const response = await api.post('/posts', newPost);
+      console.log('Save response:', response.data);
       
       // Fetch all posts again to update the latest tab
       await fetchPosts();
@@ -106,7 +111,12 @@ function App() {
         isPreviewVisible: false
       });
     } catch (error) {
-      console.error('Error saving post:', error);
+      // Improved error handling
+      console.error('Error saving post:', error.response?.data || error.message);
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
+      }
     }
   };
 
