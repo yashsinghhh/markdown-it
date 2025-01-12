@@ -6,6 +6,11 @@ import { BlogList } from './components/BlogList';
 import { Footer } from './components/Footer';
 import type { BlogPost, EditorState } from './types/blog';
 
+// Create an axios instance with the base URL
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost/api'
+});
+
 const RANDOM_IMAGES = [
   'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',
   'https://images.unsplash.com/photo-1516116216624-53e697fedbea',
@@ -27,7 +32,8 @@ function App() {
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get('http://localhost:5174/api/posts');
+      // Updated to use the api instance
+      const response = await api.get('/posts');
       setPosts(response.data);
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -86,7 +92,8 @@ function App() {
     };
 
     try {
-      const response = await axios.post('http://localhost:5174/api/posts', newPost);
+      // Updated to use the api instance
+      const response = await api.post('/posts', newPost);
       setPosts(prevPosts => [response.data, ...prevPosts]);
       
       setEditorState({
