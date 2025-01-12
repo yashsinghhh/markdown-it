@@ -8,7 +8,7 @@ import type { BlogPost, EditorState } from './types/blog';
 
 // Create an axios instance with the base URL
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost/api'
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5174/api'
 });
 
 const RANDOM_IMAGES = [
@@ -33,7 +33,9 @@ function App() {
   const fetchPosts = async () => {
     try {
       // Updated to use the api instance
+      console.log('Fetching posts...');
       const response = await api.get('/posts');
+      console.log('Received posts:', response.data);
       setPosts(response.data);
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -90,12 +92,15 @@ function App() {
       }),
       readTime: calculateReadTime(editorState.content)
     };
-
+  
     try {
-      // Updated to use the api instance
-      const response = await api.post('/posts', newPost);
-      setPosts(prevPosts => [response.data, ...prevPosts]);
+      // Save the new post
+      await api.post('/posts', newPost);
       
+      // Fetch all posts again to update the latest tab
+      await fetchPosts();
+      
+      // Reset editor state
       setEditorState({
         content: '# New Post\n\nStart writing your blog post here...',
         isPreviewVisible: false
