@@ -8,7 +8,7 @@ import type { BlogPost, EditorState } from './types/blog';
 
 // Create an axios instance with the base URL
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://nginx/api'  // Changed from localhost to nginx
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost/api'  // Changed from localhost to nginx
 });
 
 const RANDOM_IMAGES = [
