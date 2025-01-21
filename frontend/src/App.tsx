@@ -27,7 +27,7 @@ function App() {
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get('http://localhost:5174/api/posts');
+      const response = await axios.get('/api/posts');
       setPosts(response.data);
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -86,7 +86,7 @@ function App() {
     };
 
     try {
-      const response = await axios.post('http://localhost:5174/api/posts', newPost);
+      const response = await axios.post('/api/posts', newPost);
       setPosts(prevPosts => [response.data, ...prevPosts]);
       
       setEditorState({
