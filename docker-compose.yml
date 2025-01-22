@@ -18,6 +18,9 @@ services:
       dockerfile: Dockerfile
     environment:
       - VITE_API_URL=http://localhost/api
+    volumes:
+      - ./frontend:/app  # Add this volume mapping to the frontend service
+      - /app/node_modules # This prevents overwriting node_modules
 
   backend:
     build:
