@@ -1,3 +1,5 @@
 .env
 node_modules
 note.txt
+clerk-auth/notes.txt
+backend/note.txt
