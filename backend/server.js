@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config({ path: '../.env' });
-const { requireAuth } = require('@clerk/backend');
+const { requireAuth } = require('@clerk/express');
 
 const app = express();
 const PORT = process.env.PORT || 5174;
