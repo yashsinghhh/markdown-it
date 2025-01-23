@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Menu, X, Pencil } from 'lucide-react';
 import { NavLink } from './NavLink';
+import { SignInButton, UserButton, useUser } from '@clerk/clerk-react';
 
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isSignedIn } = useUser();
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
@@ -12,6 +14,14 @@ export const Header: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Pencil className="h-6 w-6 text-blue-600" />
             <span className="text-xl font-bold text-gray-900">MarkdownBlog</span>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            {isSignedIn ? (
+              <UserButton afterSignOutUrl="/" />
+            ) : (
+              <SignInButton mode="modal" />
+            )}
           </div>
 
           {/* Desktop Navigation */}
