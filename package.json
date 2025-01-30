@@ -2,6 +2,7 @@
   "dependencies": {
     "@clerk/clerk-react": "^5.22.5",
     "@clerk/nextjs": "^6.9.15",
-    "clerk": "^0.8.3"
+    "clerk": "^0.8.3",
+    "react-router-dom": "^7.1.3"
   }
 }

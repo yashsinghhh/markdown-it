@@ -5,7 +5,7 @@ import { MarkdownEditor } from './components/MarkdownEditor';
 import { BlogList } from './components/BlogList';
 import { Footer } from './components/Footer';
 import type { BlogPost, EditorState } from './types/blog';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, RedirectToSignIn } from '@clerk/clerk-react';
 
 const RANDOM_IMAGES = [
   'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',
@@ -18,12 +18,16 @@ const RANDOM_IMAGES = [
 
 
 function App() {
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn } = useAuth();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [editorState, setEditorState] = useState<EditorState>({
     content: '# Welcome to MarkdownBlog\n\nStart writing your blog post here...',
     isPreviewVisible: false
   });
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn />;
+  }
 
   useEffect(() => {
     fetchPosts();
