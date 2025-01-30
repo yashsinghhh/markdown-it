@@ -15,8 +15,6 @@ const RANDOM_IMAGES = [
   'https://images.unsplash.com/photo-1519681393784-d120267933ba'
 ];
 
-
-
 function App() {
   const { getToken, isSignedIn } = useAuth();
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -37,7 +35,6 @@ function App() {
     try {
       const token = await getToken();
       if (!token) {
-        // Redirect to login or show an error message
         console.error('User is not authenticated');
         return;
       }
@@ -49,7 +46,6 @@ function App() {
     } catch (error) {
       console.error('Error fetching posts:', error);
       if (error.response && error.response.status === 401) {
-        // Handle unauthorized access (e.g., redirect to login)
         console.error('Unauthorized access. Please log in.');
       }
     }
@@ -120,18 +116,20 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="container mx-auto px-4">
-        <MarkdownEditor
-          content={editorState.content}
-          isPreviewVisible={editorState.isPreviewVisible}
-          onContentChange={handleContentChange}
-          onPreviewToggle={togglePreview}
-          onSave={handleSave}
-        />
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Latest Posts</h2>
-        <BlogList posts={posts} />
+      <main className="container mx-auto px-4 pt-20 pb-8 flex-1">
+        <div className="max-w-4xl mx-auto">
+          <MarkdownEditor
+            content={editorState.content}
+            isPreviewVisible={editorState.isPreviewVisible}
+            onContentChange={handleContentChange}
+            onPreviewToggle={togglePreview}
+            onSave={handleSave}
+          />
+          <h2 className="text-2xl font-semibold mb-8">Latest Posts</h2>
+          <BlogList posts={posts} />
+        </div>
       </main>
       <Footer />
     </div>
