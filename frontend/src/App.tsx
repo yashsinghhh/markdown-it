@@ -5,6 +5,7 @@ import { MarkdownEditor } from './components/MarkdownEditor';
 import { BlogList } from './components/BlogList';
 import { Footer } from './components/Footer';
 import type { BlogPost, EditorState } from './types/blog';
+import { useAuth } from '@clerk/clerk-react';
 
 const RANDOM_IMAGES = [
   'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',
@@ -14,7 +15,10 @@ const RANDOM_IMAGES = [
   'https://images.unsplash.com/photo-1519681393784-d120267933ba'
 ];
 
+
+
 function App() {
+  const { getToken } = useAuth();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [editorState, setEditorState] = useState<EditorState>({
     content: '# Welcome to MarkdownBlog\n\nStart writing your blog post here...',
@@ -27,10 +31,23 @@ function App() {
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get('/api/posts');
+      const token = await getToken();
+      if (!token) {
+        // Redirect to login or show an error message
+        console.error('User is not authenticated');
+        return;
+      }
+  
+      const response = await axios.get('/api/posts', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setPosts(response.data);
     } catch (error) {
       console.error('Error fetching posts:', error);
+      if (error.response && error.response.status === 401) {
+        // Handle unauthorized access (e.g., redirect to login)
+        console.error('Unauthorized access. Please log in.');
+      }
     }
   };
 
