@@ -29,19 +29,32 @@ export const UserForm = () => {
       instagram: '',
       linkedin: '',
     },
-    role: 'reader' // default role
+    role: 'reader', // default role
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await user?.update({
-        publicMetadata: {
-          ...user.publicMetadata,
-          hasCompletedOnboarding: true,
-          ...formData
-        }
+      // Save user data directly to Supabase
+      const response = await fetch('http://localhost:5174/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user?.id,
+          name: formData.name,
+          profilePhoto: formData.profilePhoto,
+          about: formData.about,
+          socials: formData.socials,
+          role: formData.role
+        })
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to save user profile');
+      }
+
       navigate('/');
     } catch (error) {
       console.error('Error updating user data:', error);
@@ -97,48 +110,21 @@ export const UserForm = () => {
       {/* Socials Input */}
       <div className="space-y-4">
         <h3 className="text-sm font-medium text-gray-700">Social Media Links</h3>
-        
-        <div>
-          <label htmlFor="twitter" className="block text-sm text-gray-600">Twitter</label>
-          <input
-            type="url"
-            id="twitter"
-            value={formData.socials.twitter}
-            onChange={(e) => setFormData(prev => ({
-              ...prev,
-              socials: { ...prev.socials, twitter: e.target.value }
-            }))}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="instagram" className="block text-sm text-gray-600">Instagram</label>
-          <input
-            type="url"
-            id="instagram"
-            value={formData.socials.instagram}
-            onChange={(e) => setFormData(prev => ({
-              ...prev,
-              socials: { ...prev.socials, instagram: e.target.value }
-            }))}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="linkedin" className="block text-sm text-gray-600">LinkedIn</label>
-          <input
-            type="url"
-            id="linkedin"
-            value={formData.socials.linkedin}
-            onChange={(e) => setFormData(prev => ({
-              ...prev,
-              socials: { ...prev.socials, linkedin: e.target.value }
-            }))}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
+        {['twitter', 'instagram', 'linkedin'].map((platform) => (
+          <div key={platform}>
+            <label htmlFor={platform} className="block text-sm text-gray-600">{platform.charAt(0).toUpperCase() + platform.slice(1)}</label>
+            <input
+              type="url"
+              id={platform}
+              value={formData.socials[platform]}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                socials: { ...prev.socials, [platform]: e.target.value }
+              }))}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+        ))}
       </div>
 
       {/* Role Selection */}
@@ -147,28 +133,16 @@ export const UserForm = () => {
           Select your role
         </label>
         <div className="flex space-x-4">
-          <button
-            type="button"
-            onClick={() => setFormData(prev => ({ ...prev, role: 'reader' }))}
-            className={`px-4 py-2 rounded-md ${
-              formData.role === 'reader'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
-            }`}
-          >
-            Reader
-          </button>
-          <button
-            type="button"
-            onClick={() => setFormData(prev => ({ ...prev, role: 'author' }))}
-            className={`px-4 py-2 rounded-md ${
-              formData.role === 'author'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
-            }`}
-          >
-            Author
-          </button>
+          {['reader', 'author'].map((role) => (
+            <button
+              key={role}
+              type="button"
+              onClick={() => setFormData(prev => ({ ...prev, role }))}
+              className={`px-4 py-2 rounded-md ${formData.role === role ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            >
+              {role.charAt(0).toUpperCase() + role.slice(1)}
+            </button>
+          ))}
         </div>
       </div>
 

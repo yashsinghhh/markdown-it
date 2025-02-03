@@ -94,3 +94,29 @@ exports.deletePost = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.createUserProfile = async (req, res) => {
+  try {
+    const userProfile = {
+      user_id: req.body.userId,
+      name: req.body.name,
+      profile_photo: req.body.profilePhoto,
+      about: req.body.about,
+      socials: req.body.socials,
+      role: req.body.role,
+      created_at: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .insert([userProfile])
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (error) {
+    console.error('Error creating user profile:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
