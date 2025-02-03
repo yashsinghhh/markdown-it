@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config({ path: '../.env' });
+const { requireAuth } = require('@clerk/express');
 
 const app = express();
 const PORT = process.env.PORT || 5174;
@@ -13,6 +14,11 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Clerk Middleware
+app.get('/', requireAuth(), (req, res) => {
+  res.json({ message: "Welcome to the Markdown Blog API" });
+});
 
 // Routes
 const apiRoutes = require('./routes/api.routes');

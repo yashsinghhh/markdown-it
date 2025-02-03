@@ -5,6 +5,7 @@ import { MarkdownEditor } from './components/MarkdownEditor';
 import { BlogList } from './components/BlogList';
 import { Footer } from './components/Footer';
 import type { BlogPost, EditorState } from './types/blog';
+import { useAuth, RedirectToSignIn } from '@clerk/clerk-react';
 
 const RANDOM_IMAGES = [
   'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',
@@ -15,11 +16,16 @@ const RANDOM_IMAGES = [
 ];
 
 function App() {
+  const { getToken, isSignedIn } = useAuth();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [editorState, setEditorState] = useState<EditorState>({
     content: '# Welcome to MarkdownBlog\n\nStart writing your blog post here...',
     isPreviewVisible: false
   });
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn />;
+  }
 
   useEffect(() => {
     fetchPosts();
@@ -27,10 +33,21 @@ function App() {
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get('/api/posts');
+      const token = await getToken();
+      if (!token) {
+        console.error('User is not authenticated');
+        return;
+      }
+  
+      const response = await axios.get('/api/posts', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setPosts(response.data);
     } catch (error) {
       console.error('Error fetching posts:', error);
+      if (error.response && error.response.status === 401) {
+        console.error('Unauthorized access. Please log in.');
+      }
     }
   };
 
@@ -99,18 +116,20 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="container mx-auto px-4">
-        <MarkdownEditor
-          content={editorState.content}
-          isPreviewVisible={editorState.isPreviewVisible}
-          onContentChange={handleContentChange}
-          onPreviewToggle={togglePreview}
-          onSave={handleSave}
-        />
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Latest Posts</h2>
-        <BlogList posts={posts} />
+      <main className="container mx-auto px-4 pt-20 pb-8 flex-1">
+        <div className="max-w-4xl mx-auto">
+          <MarkdownEditor
+            content={editorState.content}
+            isPreviewVisible={editorState.isPreviewVisible}
+            onContentChange={handleContentChange}
+            onPreviewToggle={togglePreview}
+            onSave={handleSave}
+          />
+          <h2 className="text-2xl font-semibold mb-8">Latest Posts</h2>
+          <BlogList posts={posts} />
+        </div>
       </main>
       <Footer />
     </div>

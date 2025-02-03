@@ -1,0 +1,21 @@
+B. Communication with Clerk Microservice
+
+Frontend → Clerk Microservice:
+Users interact with Clerk’s UI (via SDK or custom UI) on the frontend.
+This interaction calls Clerk's hosted API directly for auth workflows (login, registration).
+After successful login, the frontend gets a session token (JWT).
+
+
+Backend → Clerk Microservice:
+The backend verifies session tokens by sending them to the Clerk microservice.
+Example:
+Frontend sends a request to the backend with the token.
+Backend forwards this token to the Clerk microservice for validation.
+Clerk microservice responds with user details or error if the token is invalid.
+
+
+Clerk Microservice → Clerk API:
+The Clerk microservice communicates with Clerk’s hosted API to:
+Validate tokens.
+Fetch user metadata.
+Perform user management operations (if required).
