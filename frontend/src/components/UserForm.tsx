@@ -47,14 +47,22 @@ export const UserForm = () => {
           profilePhoto: formData.profilePhoto,
           about: formData.about,
           socials: formData.socials,
-          role: formData.role
+          role: formData.role,
+
         })
       });
+
+      const data = await response.json();
+      console.log('Profile saved successfully:', data);
 
       if (!response.ok) {
         throw new Error('Failed to save user profile');
       }
 
+      await user?.update({
+        unsafeMetadata: { hasCompletedOnboarding: true }
+      });
+      
       navigate('/');
     } catch (error) {
       console.error('Error updating user data:', error);

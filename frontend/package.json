@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.22.5",
+    "@clerk/clerk-sdk-node": "^5.1.6",
     "@fontsource/inter": "^5.1.1",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/typography": "^0.5.15",

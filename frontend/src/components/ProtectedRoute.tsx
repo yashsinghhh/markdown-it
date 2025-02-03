@@ -15,7 +15,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   // Check if user is new (doesn't have required metadata)
-  const isNewUser = !user?.publicMetadata?.hasCompletedOnboarding;
+  const isNewUser = !user?.unsafeMetadata?.hasCompletedOnboarding;
   
   // If user is new and not already on the user-form page, redirect to user-form
   if (isNewUser && window.location.pathname !== '/user-form') {
