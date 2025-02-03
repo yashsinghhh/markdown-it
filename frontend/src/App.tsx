@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios'; 
+import { useAuth } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
 import { Header } from './components/Header';
 import { MarkdownEditor } from './components/MarkdownEditor';
 import { BlogList } from './components/BlogList';
 import { Footer } from './components/Footer';
 import type { BlogPost, EditorState } from './types/blog';
-import { useAuth, RedirectToSignIn } from '@clerk/clerk-react';
 
 const RANDOM_IMAGES = [
   'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',
@@ -16,16 +17,38 @@ const RANDOM_IMAGES = [
 ];
 
 function App() {
-  const { getToken, isSignedIn } = useAuth();
+  const { user, isSignedIn, getToken } = useAuth();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [editorState, setEditorState] = useState<EditorState>({
     content: '# Welcome to MarkdownBlog\n\nStart writing your blog post here...',
     isPreviewVisible: false
   });
 
-  if (!isSignedIn) {
-    return <RedirectToSignIn />;
-  }
+  useEffect(() => {
+    if (isSignedIn && user?.id) {
+      console.log("User signed in, checking user details...");
+      checkUser(user.id);
+    }
+  }, [isSignedIn, user]);
+
+  const checkUser = async (clerkId: string) => {
+    console.log("Checking user:", clerkId);
+    try {
+      const response = await axios.post('/api/users/check', { clerkId }, { headers: { 'Cache-Control': 'no-cache' } });
+      console.log("User check response:", response.data);
+      
+      if (!response.data.exists) {
+        console.log("Redirecting to /user-setup");
+        navigate('/user-setup');
+      } else {
+        console.log(`Redirecting to ${response.data.role}-dashboard`);
+        navigate(response.data.role === 'author' ? '/author-dashboard' : '/reader-dashboard');
+      }
+    } catch (error) {
+      console.error('Error checking user:', error);
+    }
+  };
 
   useEffect(() => {
     fetchPosts();
@@ -59,61 +82,26 @@ function App() {
     setEditorState(prev => ({ ...prev, isPreviewVisible: !prev.isPreviewVisible }));
   };
 
-  const getRandomImage = () => {
-    return RANDOM_IMAGES[Math.floor(Math.random() * RANDOM_IMAGES.length)];
-  };
-
-  const calculateReadTime = (content: string): number => {
-    const words = content.trim().split(/\s+/).length;
-    return Math.max(1, Math.ceil(words / 200));
-  };
-
-  const parseMarkdownContent = (content: string) => {
-    const lines = content.split('\n');
-    let title = 'Untitled Post';
-    let description = '';
-
-    const titleMatch = content.match(/^#\s+(.+)$/m);
-    if (titleMatch) {
-      title = titleMatch[1];
-    }
-
-    const descriptionMatch = content.match(/^(?!#)[^\n]+/m);
-    if (descriptionMatch) {
-      description = descriptionMatch[0].slice(0, 150) + '...';
-    }
-
-    return { title, description };
-  };
-
   const handleSave = async () => {
-    const { title, description } = parseMarkdownContent(editorState.content);
-    
     const newPost = {
-      title,
-      description,
+      title: 'New Post',
+      description: 'A new blog post',
       content: editorState.content,
-      image: getRandomImage(),
-      date: new Date().toLocaleDateString('en-US', { 
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      }),
-      readTime: calculateReadTime(editorState.content)
+      date: new Date().toISOString(),
+      readTime: Math.ceil(editorState.content.split(' ').length / 200)
     };
 
     try {
-      const response = await axios.post('/api/posts', newPost);
-      setPosts(prevPosts => [response.data, ...prevPosts]);
-      
-      setEditorState({
-        content: '# New Post\n\nStart writing your blog post here...',
-        isPreviewVisible: false
-      });
+      await axios.post('/api/posts', newPost);
+      fetchPosts();
     } catch (error) {
       console.error('Error saving post:', error);
     }
   };
+
+  if (!isSignedIn) {
+    return <div>Please sign in to continue...</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
