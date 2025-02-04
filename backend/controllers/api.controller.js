@@ -24,6 +24,7 @@ exports.createPost = async (req, res) => {
       image: req.body.image,
       date: req.body.date,
       read_time: req.body.readTime,
+      user_id: req.body.userId,
       created_at: new Date().toISOString()
     };
 
