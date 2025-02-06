@@ -6,6 +6,7 @@ import App from './App.tsx';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import './index.css';
 import BlogPostPage from './components/BlogPostPage';
+import { UserForm } from './components/UserForm.tsx';
 
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -18,6 +19,17 @@ createRoot(document.getElementById('root')!).render(
     <ClerkProvider publishableKey={clerkPublishableKey}>
       <BrowserRouter>
       <Routes>
+
+    <Route
+      path="/user-form"
+      element={
+        <ProtectedRoute>
+          <UserForm />
+        </ProtectedRoute>
+    }
+  />
+
+
   <Route
     path="/"
     element={

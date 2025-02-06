@@ -1,13 +1,14 @@
 // File: src/components/BlogPostPage.tsx
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
-import { useAuth } from '@clerk/clerk-react';
-import { Clock, User } from 'lucide-react';
-import { Header } from './Header'; 
-import type { BlogPost } from '../types/blog';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
+import { useAuth } from "@clerk/clerk-react";
+import { Clock, User } from "lucide-react";
+import { Header } from "./Header";
+import type { BlogPost } from "../types/blog";
+import { Badge } from "@/components/ui/badge"; // Import ShadCN Badge
 
 const BlogPostPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,7 +22,7 @@ const BlogPostPage: React.FC = () => {
       try {
         const token = await getToken();
         if (!token) {
-          setError('Unauthorized access. Please log in.');
+          setError("Unauthorized access. Please log in.");
           return;
         }
 
@@ -30,7 +31,7 @@ const BlogPostPage: React.FC = () => {
         });
         setPost(response.data);
       } catch (err) {
-        setError('Failed to fetch the blog post.');
+        setError("Failed to fetch the blog post.");
         console.error(err);
       } finally {
         setLoading(false);
@@ -56,11 +57,11 @@ const BlogPostPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Add the Header (Navbar) */}
+      {/* Header (Navbar) */}
       <Header />
 
       {/* Blog Content */}
-      <main className="flex-1 pt-20"> {/* Add pt-20 to account for the navbar height */}
+      <main className="flex-1 pt-20">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <img
             src={post.image}
@@ -68,14 +69,19 @@ const BlogPostPage: React.FC = () => {
             className="w-full h-64 md:h-96 object-cover rounded-lg mb-6"
           />
           <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
-          <div className="flex items-center text-sm text-primary/60 mb-6">
-            <time dateTime={post.date}>{post.date}</time>
-            <span className="mx-2">•</span>
-            <span className="flex items-center">
-              <Clock className="h-4 w-4 mr-1" />
-              {post.readTime} min read
-            </span>
+
+          {/* Category & Read Time Badges */}
+          <div className="prose max-w-none">
+            <div className="flex gap-2 mb-6">
+              <Badge variant="outline" className="text-sm">
+                {post.category || "General"}
+              </Badge>
+              <Badge variant="secondary" className="text-sm">
+                {post.readTime} min read
+              </Badge>
+            </div>
           </div>
+
           <div
             className="prose prose-sm md:prose-base max-w-none"
             dangerouslySetInnerHTML={{ __html: parsedContent }}
@@ -99,9 +105,9 @@ const BlogPostPage: React.FC = () => {
               </div>
             </div>
             <p className="mt-4 text-primary/80">
-              John is a passionate software engineer with over 5 years of experience
-              in building scalable web applications. He loves sharing his knowledge
-              through blog posts and tutorials.
+              John is a passionate software engineer with over 5 years of
+              experience in building scalable web applications. He loves
+              sharing his knowledge through blog posts and tutorials.
             </p>
           </div>
         </div>
