@@ -1,8 +1,11 @@
-import { useState } from 'react';
-import { useUser } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useUser } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button"; // ShadCN Button
+import { Input } from "@/components/ui/input"; // ShadCN Input
+import { Label } from "@/components/ui/label"; // ShadCN Label
 
-type Role = 'author' | 'reader';
+type Role = "author" | "reader";
 
 interface FormData {
   name: string;
@@ -19,27 +22,26 @@ interface FormData {
 export const UserForm = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState<FormData>({
-    name: '',
-    profilePhoto: '',
-    about: '',
+    name: "",
+    profilePhoto: "",
+    about: "",
     socials: {
-      twitter: '',
-      instagram: '',
-      linkedin: '',
+      twitter: "",
+      instagram: "",
+      linkedin: "",
     },
-    role: 'reader', // default role
+    role: "reader", // default role
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Save user data directly to Supabase
-      const response = await fetch('http://localhost:5174/api/users', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5174/api/users", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           userId: user?.id,
@@ -48,119 +50,102 @@ export const UserForm = () => {
           about: formData.about,
           socials: formData.socials,
           role: formData.role,
-
-        })
+        }),
       });
 
-      const data = await response.json();
-      console.log('Profile saved successfully:', data);
-
       if (!response.ok) {
-        throw new Error('Failed to save user profile');
+        throw new Error("Failed to save user profile");
       }
 
       await user?.update({
-        unsafeMetadata: { hasCompletedOnboarding: true }
+        unsafeMetadata: { hasCompletedOnboarding: true },
       });
-      
-      navigate('/');
+
+      navigate("/");
     } catch (error) {
-      console.error('Error updating user data:', error);
+      console.error("Error updating user data:", error);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-8 p-4 space-y-6">
       {/* Name Input */}
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-          Full Name
-        </label>
-        <input
-          type="text"
+      <div className="grid gap-2">
+        <Label htmlFor="name">Full Name</Label>
+        <Input
           id="name"
           value={formData.name}
-          onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+          onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
           required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </div>
 
       {/* Profile Photo Input */}
-      <div>
-        <label htmlFor="profilePhoto" className="block text-sm font-medium text-gray-700">
-          Profile Photo URL
-        </label>
-        <input
-          type="url"
+      <div className="grid gap-2">
+        <Label htmlFor="profilePhoto">Profile Photo URL</Label>
+        <Input
           id="profilePhoto"
+          type="url"
           value={formData.profilePhoto}
-          onChange={(e) => setFormData(prev => ({ ...prev, profilePhoto: e.target.value }))}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          onChange={(e) => setFormData((prev) => ({ ...prev, profilePhoto: e.target.value }))}
         />
       </div>
 
       {/* About Input */}
-      <div>
-        <label htmlFor="about" className="block text-sm font-medium text-gray-700">
-          About You
-        </label>
-        <textarea
+      <div className="grid gap-2">
+        <Label htmlFor="about">About You</Label>
+        <Input
           id="about"
-          value={formData.about}
-          onChange={(e) => setFormData(prev => ({ ...prev, about: e.target.value }))}
-          required
+          as="textarea"
           rows={4}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          value={formData.about}
+          onChange={(e) => setFormData((prev) => ({ ...prev, about: e.target.value }))}
+          required
         />
       </div>
 
       {/* Socials Input */}
       <div className="space-y-4">
-        <h3 className="text-sm font-medium text-gray-700">Social Media Links</h3>
-        {['twitter', 'instagram', 'linkedin'].map((platform) => (
-          <div key={platform}>
-            <label htmlFor={platform} className="block text-sm text-gray-600">{platform.charAt(0).toUpperCase() + platform.slice(1)}</label>
-            <input
-              type="url"
+        <h3 className="text-sm font-medium">Social Media Links</h3>
+        {["twitter", "instagram", "linkedin"].map((platform) => (
+          <div key={platform} className="grid gap-2">
+            <Label htmlFor={platform}>{platform.charAt(0).toUpperCase() + platform.slice(1)}</Label>
+            <Input
               id={platform}
+              type="url"
               value={formData.socials[platform]}
-              onChange={(e) => setFormData(prev => ({
-                ...prev,
-                socials: { ...prev.socials, [platform]: e.target.value }
-              }))}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  socials: { ...prev.socials, [platform]: e.target.value },
+                }))
+              }
             />
           </div>
         ))}
       </div>
 
       {/* Role Selection */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Select your role
-        </label>
+      <div className="grid gap-2">
+        <Label>Select Your Role</Label>
         <div className="flex space-x-4">
-          {['reader', 'author'].map((role) => (
-            <button
+          {["reader", "author"].map((role) => (
+            <Button
               key={role}
               type="button"
-              onClick={() => setFormData(prev => ({ ...prev, role }))}
-              className={`px-4 py-2 rounded-md ${formData.role === role ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+              variant={formData.role === role ? "default" : "outline"}
+              onClick={() => setFormData((prev) => ({ ...prev, role }))}
             >
               {role.charAt(0).toUpperCase() + role.slice(1)}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
 
       {/* Submit Button */}
-      <button
-        type="submit"
-        className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-      >
+      <Button type="submit" className="w-full">
         Complete Profile
-      </button>
+      </Button>
     </form>
   );
 };
