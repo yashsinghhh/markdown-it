@@ -1,0 +1,91 @@
+-- Enable UUID extension
+create extension if not exists "uuid-ossp";
+
+-- Posts table (updated with user relationship)
+create table posts (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references auth.users(id) not null,
+  title text not null,
+  description text,
+  content text not null,
+  image text,
+  date text,
+  read_time integer,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- User Profiles table (if not already existing)
+create table user_profiles (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references auth.users(id) not null unique,
+  name text,
+  profile_photo text,
+  about text,
+  socials jsonb,
+  role text,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- Comments table
+create table comments (
+  id uuid default uuid_generate_v4() primary key,
+  post_id uuid references posts(id) on delete cascade not null,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  content text not null,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- Likes table (composite primary key)
+create table likes (
+  post_id uuid references posts(id) on delete cascade not null,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()),
+  primary key (post_id, user_id)
+);
+
+-- Indexes for performance
+create index idx_posts_user_id on posts(user_id);
+create index idx_comments_post_id on comments(post_id);
+create index idx_likes_post_id on likes(post_id);
+
+
+
+
+
+create table user_mapping (
+  supabase_id uuid default uuid_generate_v4() primary key,
+  clerk_id text unique not null
+);
+
+
+
+alter table posts drop constraint posts_user_id_fkey;
+
+alter table posts alter column user_id type uuid using user_id::uuid;
+
+alter table posts add constraint posts_user_id_fkey 
+foreign key (user_id) references user_mapping(supabase_id) on delete cascade;
+
+
+alter table user_profiles drop constraint user_profiles_user_id_fkey;
+
+alter table user_profiles alter column user_id type uuid using user_id::uuid;
+
+alter table user_profiles add constraint user_profiles_user_id_fkey 
+foreign key (user_id) references user_mapping(supabase_id) on delete cascade;
+
+
+alter table comments drop constraint comments_user_id_fkey;
+
+alter table comments alter column user_id type uuid using user_id::uuid;
+
+alter table comments add constraint comments_user_id_fkey 
+foreign key (user_id) references user_mapping(supabase_id) on delete cascade;
+
+
+alter table likes drop constraint likes_user_id_fkey;
+
+alter table likes alter column user_id type uuid using user_id::uuid;
+
+alter table likes add constraint likes_user_id_fkey 
+foreign key (user_id) references user_mapping(supabase_id) on delete cascade;
